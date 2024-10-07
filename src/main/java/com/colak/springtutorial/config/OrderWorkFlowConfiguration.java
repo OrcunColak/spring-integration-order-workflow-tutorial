@@ -6,20 +6,18 @@ import com.colak.springtutorial.service.OrderEnrichmentService;
 import com.colak.springtutorial.service.OrderFulFillService;
 import com.colak.springtutorial.service.OrderValidationService;
 import com.colak.springtutorial.service.PaymentService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.messaging.MessageHandler;
 
-/**
- * @author palmurugan
- */
 @Configuration
+@RequiredArgsConstructor
+@Slf4j
 public class OrderWorkFlowConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(OrderWorkFlowConfiguration.class);
 
     private final OrderValidationService orderValidationService;
 
@@ -31,18 +29,6 @@ public class OrderWorkFlowConfiguration {
 
     private final OrderFulFillService orderFulFillService;
 
-    public OrderWorkFlowConfiguration(OrderValidationService orderValidationService,
-                                      OrderEnrichmentService orderEnrichmentService,
-                                      PaymentService paymentService,
-                                      NotificationService notificationService,
-                                      OrderFulFillService orderFulFillService) {
-        this.orderValidationService = orderValidationService;
-        this.orderEnrichmentService = orderEnrichmentService;
-        this.paymentService = paymentService;
-        this.notificationService = notificationService;
-        this.orderFulFillService = orderFulFillService;
-    }
-
     /**
      * Order processing flow
      * 1. Order validation
@@ -50,8 +36,6 @@ public class OrderWorkFlowConfiguration {
      * 3. Payment processing
      * 4. Notification
      * 5. Order fulfillment
-     *
-     * @return IntegrationFlow
      */
     @Bean
     public IntegrationFlow orderValidationFlow() {
@@ -66,11 +50,6 @@ public class OrderWorkFlowConfiguration {
                 .get();
     }
 
-    /**
-     * Enrich order flow
-     *
-     * @return IntegrationFlow
-     */
     @Bean
     public IntegrationFlow enrichOrderFlow() {
         return IntegrationFlow.from("enrichOrderChannel")
@@ -79,11 +58,6 @@ public class OrderWorkFlowConfiguration {
                 .get();
     }
 
-    /**
-     * Payment processing flow
-     *
-     * @return IntegrationFlow
-     */
     @Bean
     public IntegrationFlow paymentProcessingFlow() {
         return IntegrationFlow.from("paymentChannel")
@@ -95,11 +69,6 @@ public class OrderWorkFlowConfiguration {
                 .get();
     }
 
-    /**
-     * Notification flow
-     *
-     * @return IntegrationFlow
-     */
     @Bean
     public IntegrationFlow notificationFlow() {
         return IntegrationFlow.from("notificationChannel")
@@ -108,11 +77,6 @@ public class OrderWorkFlowConfiguration {
                 .get();
     }
 
-    /**
-     * Order fulfillment flow
-     *
-     * @return IntegrationFlow
-     */
     @Bean
     public IntegrationFlow orderFulfillmentFlow() {
         return IntegrationFlow.from("orderFulfillmentChannel")
@@ -121,11 +85,6 @@ public class OrderWorkFlowConfiguration {
                 .get();
     }
 
-    /**
-     * Order completion handler
-     *
-     * @return MessageHandler
-     */
     @Bean
     public MessageHandler orderCompletionHandler() {
         return message -> log.info("Order fulfilled: {}", message);
